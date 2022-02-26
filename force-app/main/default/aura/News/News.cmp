@@ -1,0 +1,401 @@
+<aura:component controller="NewsAPICntrl" IMPLEMENTS="force:appHostable,flexipage:availableForAllPageTypes,force:hasrecordId,forceCommunity:availableForAllPageTypes" Access="global">
+    
+    <!--Aura init handler-->
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}"/>
+    <!-- Aura:waiting and aura:donewaiting for spinner -->
+    <aura:handler event="aura:waiting" action="{!c.showSpinner}"/>
+    <aura:handler event="aura:doneWaiting" action="{!c.hideSpinner}"/>
+    <!--Spinner attribute-->
+    <aura:attribute name="spinner" type="boolean" default="false"/>
+    <!--Attribute for news titles-->
+    <aura:attribute name="newsTitle"  type="string[]"/>
+    <!--NewsData warpper attaribute-->
+    <aura:attribute name="newsData" type="NewsJSONParser[]"/>
+    <!--News source list -->
+    <aura:attribute name="source" type="list" />
+    <!--Selected new source -->
+    <aura:attribute name="selectedNewsSource" type="string"/>
+    <!--Showpicklist boolean attribute-->
+    <aura:attribute name="showpicklist" type="Boolean" default="false"/>
+    <!--Search keyword-->
+    <aura:attribute name="searchKey" type="string"/>
+    <!--Is news source option opened-->
+    <aura:attribute name="newsSourceOpen" type="Boolean" default="true"/>
+    <!--Is country list open-->
+    <aura:attribute name="CountryOpen" type="Boolean" default="false"/>
+    <!--Country list-->
+    <aura:attribute name="country" type="list"/>
+    <!--Is category modal open-->
+    <aura:attribute name="isCategoryModalOpen" type="Boolean" default="false"/>
+    <!--is source-->
+    <aura:attribute name="isSource" type="Boolean" default="true"/>
+    <!--isCountry -->
+    <aura:attribute name="isCountry" type="Boolean" default="false"/>
+    <!--Selected new category-->
+    <aura:attribute name="selectedNewscategory" type="string" default=""/>
+    <!--is news category-->
+    <aura:attribute name="isNewscategory" type="Boolean" default="false"/>
+    <!--icon URL-->
+    <aura:attribute name="iconURL" type="string" default=""/>
+    <!--Icon map-->
+    <aura:attribute name="iconMap" type="Map" default="{}" />
+    <!--News Source custom metadata type-->
+    <aura:attribute name="newsSourceDomainList" type="String[]"/>
+    <!--Country falg map-->
+    <aura:attribute name="mapCountryFlag" type="Map" default="{}"/>
+    <html>
+        <!--HEAD-->
+        <head>
+            <title>MyNews</title>
+            <link rel="stylesheet" media="screen and (device-height: 600px)" />
+            
+            <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+        </head>
+        <!--/HEAD-->
+        <div class="slds">
+          
+            <!-- navigation items-->
+            <div aura:id="mySidenav" class="sidenav" id="navBar">
+
+                <!--
+                <label class="switch">
+                    <input type="checkbox" onchange="{!c.handleModeChange}" />
+                    <span class="slider round"></span>
+                  </label>
+                  <hr/> -->
+                <a href="javascript:void(0)" class="closebtn" onclick="{!c.closeNav}">&times;</a>
+                <aura:if isTrue="{!v.newsSourceOpen}">
+                    <!--display news source option here-->
+                    <aura:if isTrue="{!v.showpicklist}" >
+                        <div id="newsSources">
+
+                            <!--iterate over news source list-->
+                            <aura:iteration items="{!v.source}" var="level">
+
+                                <a href="" name="{!level.value}" value="{!level.value}" onclick="{!c.onChangeFunction}">
+
+                                    {!level.label} <!--print new source name-->
+
+                                </a><br/>
+
+                            </aura:iteration>
+
+                            <!--news source list iterations ends here-->
+                        </div>
+                    </aura:if> 
+                </aura:if>
+                <!-- Country list options-->
+                <aura:if isTrue="{!v.CountryOpen}">
+                    <div id="countries">
+
+                            <!--Iterate over country list-->
+                            <aura:iteration items="{!v.country}" var="cntry">
+
+                                <div class="slds-grid slds-gutters">
+
+                                    <div class="slds-col slds-size_2-of-12">
+
+                                        <!--display country flag-->
+                                        <c:countryFlag countryFlagMap="{!v.mapCountryFlag}" mapKey="{!cntry.label}"/>
+
+                                    </div>
+
+                                    <div class="slds-col slds-size_10-of-12">
+                                      <span>
+
+                                        <a href="" name="{!cntry.value}" value="{!cntry.value}" onclick="{!c.onCountryChangeFunction}">
+                                            {!cntry.label} <!--Print country name-->
+                                        </a>
+
+                                      </span>
+
+                                    </div>
+
+                                  </div>
+                                <br/>
+
+                            </aura:iteration>
+                            <!--Iteration ends here-->
+                        </div>
+                </aura:if><!--aura:if ends here-->
+            </div>
+
+            <!-- Spinner-->
+            <aura:if isTrue="{!v.Spinner}">
+
+                <div aura:id="spinnerId" class="slds-spinner_container">
+
+                    <div class="slds-spinner--brand  slds-spinner slds-spinner--large slds-is-relative" role="alert">
+
+                        <span class="slds-assistive-text">Loading</span>
+
+                        <div class="slds-spinner__dot-a"></div>
+
+                        <div class="slds-spinner__dot-b"></div>
+                        
+                    </div>
+
+                </div>
+            </aura:if>
+            <!--END-->
+
+            <div class="slds-grid" id="all" >  
+
+                <div class="slds-col slds-size_12-of-12 main_container"  tabindex="-1" >
+
+                    <!--ui:scrollWrapper componet makes contents scrollable-->
+                    <ui:scrollerWrapper class="wrapper" >
+                        <!--Spinner-->
+                        <!-- Sticky Header -->
+                        <div class="fixed-header">
+
+                            <div class="slds-page-header " aura:id="smartNewsHeader" >
+
+                                <div class="slds-grid">
+
+                                    <div class="slds-col slds-size_2-of-12" >
+
+                                        <span style="font-size:30px;cursor:pointer; position: relative;top: 10px;" onclick="{!c.openNav}">&#9776; </span>
+                                        <!--<img src="{!$Resource.SmartNewsLogo}" id="logo"></img>-->
+                                        <!--<lightning:icon iconName="utility:news" size="small"   alternativeText="Icon" title="Icon" />-->
+                                    </div>&nbsp;&nbsp;
+
+                                    <!--Search box grid column-->
+                                    <div class="slds-col slds-size_8-of-12" >
+
+                                        <!--search box to search the keywords-->
+                                        <lightning:input
+                                                        aura:id="enter-search"
+                                                        name="enter-search"
+                                                        label=""
+                                                        type="search"
+                                                        value="{!v.searchKey}"
+                                                        placeholder="Search Keywords or phrases"
+                                                        
+                                                        />       
+                                    </div>
+
+                                    <!--search button-->
+                                    <div class="slds-col slds-size_2-of-12" style="margin-top: 11px;height: 27px;margin-left: 10px;" >
+                                        <lightning:buttonIcon iconName="utility:search" variant="brand" alternativeText="Settings" title="Settings" onclick="{!c.searchNews}"/>
+                                    </div>
+
+                                </div>
+                            </div> <!--news header div ends here-->
+                       
+                        <!-- END --> 
+                         <!--Selected News source Header-->
+                         <div id="selectedNewsSource">
+
+                            <div class="slds-page-header" id="selected-header">
+
+                                <div class="slds-grid">
+
+                                    <div class="slds-col slds-size_11-of-12">
+                                        <aura:if isTrue="{!v.iconURL !=''}">
+                                            <img src="{!v.iconURL}" class="news-source-icon"/>&nbsp;  
+                                        </aura:if>
+                                       <!--Selected News Scource Header-->
+                                       <span id="selected-news-header">
+                                           {!v.selectedNewsSource}
+
+                                       <!--check if news category is on-->
+                                       <aura:if isTrue="{!v.isNewscategory}">
+
+                                           <!--New catogory Name-->
+                                           ({!v.selectedNewscategory})
+
+                                        </aura:if>
+                                        <!--aura:if ends here-->
+
+                                       </span>
+                                    </div><!--slds grid column 11-of-12 ends here-->
+
+                                    <div class="slds-col slds-size_1-of-12">
+
+                                        <aura:if isTrue="{!v.isCountry}">
+
+                                            <!--Button icons opens a modal box to select the new category-->
+                                            <lightning:icon iconName="standard:category" size="medium" alternativeText="category" title="category" onclick="{!c.OpenCategoryModal}"/>
+                                        
+                                        </aura:if>
+
+                                    </div> <!--1 column ends here-->
+
+                                </div> <!--slds grid ends here-->
+
+                            </div> <!--page header div ends here-->
+
+                       </div> <!--selectedNewsSource div ends here-->
+
+                    </div><!--fix header div ends here-->
+
+                     <br/><br/><br/><br/><br/><br/><br/>
+
+                        <div id="news_body" onclick="{!c.hideSidebarMenu}">  
+
+							<!--News content div-->
+                            <div aura:id="new_content">
+
+                                <aura:iteration items="{!v.newsData}" var="n" >     
+
+                                    <aura:iteration items="{!n.articles}" var="n1">
+
+                                        <div class="container" >
+
+                                            <a href="{!n1.url}" id="link" target="_blank">
+                                                <span id="title" >{!n1.title}</span>
+                                            </a><br/>
+
+                                            <!--Auther details -->
+                                            Author: <span>{!n1.author}</span>&nbsp;&nbsp;
+
+                                            <!--Publish details-->
+                                            PublishedAt: <span>{!n1.publishedAt}</span><br/>
+
+                                            <!--Short description details-->
+                                            <span id="desc">
+                                                {!n1.description}
+                                            </span><br/>
+
+                                            <!--Image and article link-->
+                                            <a href="{!n1.url}" id="link" target="_blank">
+
+                                                <!--atricle image-->
+                                                <img src="{!n1.urlToImage}" id="image"/>
+
+                                            </a><br/><br/>
+
+                                        </div><!--container div ends here-->
+
+                                    </aura:iteration><br/><!--atricle iteration ends here-->
+
+                                </aura:iteration> <!--newsdata list iteration ends here-->
+
+                            </div> <!--news_content div ends here-->      
+
+                        </div> <!--news_body div ends here-->
+
+                    </ui:scrollerWrapper> <!--ui:scrollerWrapper component ends here-->   
+
+                </div>  
+
+            </div>
+
+        </div>
+        <!--News category modal box -->
+        <aura:if isTrue="{!v.isCategoryModalOpen}">
+
+            <section role="dialog" tabindex="-1" class="slds-modal slds-fade-in-open slds-modal_small" aria-labelledby="modal-heading-01" aria-modal="true" aria-describedby="modal-content-id-1">
+                <div class="slds-modal__container">
+
+                    <header class="slds-modal__header">
+
+                        <button class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse" title="Close">
+
+                            <lightning:icon iconName="standard:close" size="xx-small"   alternativeText="Close" title="Close" onclick="{!c.closeCategoryModal}"/>
+
+                            <span class="slds-assistive-text">Close</span>
+
+                        </button>
+
+                        <h2 id="modal-heading-01" class="slds-modal__title slds-hyphenate">Select Category</h2>
+
+                    </header>
+
+                    <div class="slds-modal__content slds-var-p-around_medium" id="modal-content-id-1">
+
+                        <div class="slds-grid">
+
+                            <div class="slds-col slds-size_4-of-12">
+
+                                <a href="" name="business" onclick="{!c.onChangeCategory}"><span class="slds-badge">Business</span></a>
+
+                            </div>
+
+                            <div class="slds-col slds-size_4-of-12">
+
+                                <a href="" name="entertainment" onclick="{!c.onChangeCategory}"><span class="slds-badge">Entertainment</span></a>
+
+                            </div>&nbsp;&nbsp;&nbsp;&nbsp;
+
+                            <div class="slds-col slds-size_4-of-12">
+
+                                <a href="" name="health" onclick="{!c.onChangeCategory}"><span class="slds-badge">Health </span></a>
+
+                            </div>
+
+                        </div>
+
+                        <br/>
+                        <div class="slds-grid">
+
+                            <div class="slds-col slds-size_4-of-12">
+                                <a href="" name="science" onclick="{!c.onChangeCategory}"><span class="slds-badge">Science</span></a>
+                            </div>
+
+                            <div class="slds-col slds-size_4-of-12">
+                                <a href="" name="sports" onclick="{!c.onChangeCategory}"><span class="slds-badge">Sports</span></a>
+                            </div>&nbsp;&nbsp;&nbsp;&nbsp;
+
+                            <div class="slds-col slds-size_4-of-12">
+                                <a href="" name="technology" onclick="{!c.onChangeCategory}"><span class="slds-badge">Technology </span></a>
+                            </div>
+
+                        </div>
+                    </div>
+                    <footer class="slds-modal__footer">
+
+                        <button class="slds-button slds-button_neutral" onclick="{!c.closeCategoryModal}">Cancel</button>
+
+                    </footer>
+                </div>
+
+            </section> <!--modal section end here-->
+
+            <div class="slds-backdrop slds-backdrop_open"></div> 
+
+        </aura:if>
+        <!--END-->
+
+        <!--Footer-->
+        <div class="fixed-footer">
+
+            <div class="slds-page-header">
+
+                <div class="slds-grid">
+
+                    <div class="slds-col slds-size_1-of-12">
+
+                        <span style="font-size:30px;cursor:pointer; position: relative;    top: 3px;" onclick="{!c.openCountryNav}">
+                        
+                        <lightning:icon iconName="utility:world" size="small"   alternativeText="Countries" title="Countries" onclick="{! c.openCountryNav }"/>
+                        </span>
+
+                    </div>
+
+                    <div class="slds-col slds-size_6-of-12">
+                        
+                    <span style="font-size:8px; position: relative;top: 40%;"> Developed By: <b> <a href="https://sfdclesson.com/" target="_blank">SFDC LESSONS</a></b></span>
+                    </div>
+                    
+                    <div class="slds-col slds-size_6-of-12">
+
+                        <span style="font-size:8px;position: absolute;top: 46%;right: 10%;">
+
+                            <center>
+                                Power By: <a href="https://newsapi.org/" target="_blank">NewsAPI.org</a>
+                            </center>  
+
+                        </span>  
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+        
+    </html>
+</aura:component>

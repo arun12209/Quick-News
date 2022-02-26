@@ -1,0 +1,9 @@
+<aura:component>
+    <aura:attribute name="countryFlagMap" type="Map" />
+    <aura:attribute name="mapKey" type="String" />
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}"/>
+    <aura:attribute name="flagURL" type="String"/>
+      <!--country flag-->
+      <img src="{!v.flagURL}" id="flag"
+           alt="{!v.mapKey}"/>
+</aura:component>	

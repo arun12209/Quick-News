@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Available_by_domain__c</fullName>
+    <defaultValue>false</defaultValue>
+    <description>This checkbox field indicates if news article available by domain</description>
+    <externalId>false</externalId>
+    <fieldManageability>DeveloperControlled</fieldManageability>
+    <label>Available by domain</label>
+    <type>Checkbox</type>
+</CustomField>
