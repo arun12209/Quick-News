@@ -1,18 +1,16 @@
-# Salesforce DX Project: Next Steps
+# Quick-News
 
-Now that you’ve created a Salesforce DX project, what’s next? Here are some documentation resources to get you started.
+This Quick-News application developed on the Salesforce platform and powered by NewsAPI.org. The Application serves you top news articles from different news sources and also you can read the top headlines country-wise.
 
-## How Do You Plan to Deploy Your Changes?
+# Features
+  * Read the top headlines news from different news sources. 
+  * Read the top news article country-wise. You can filter the news based on diifferent catogories like Business, Entertainment, Health, Science, Sports, Technology.
+  * The countries news articles served in country official language.
+  * You can search for the news articles.
+  * The application will remember your last selection of news-source and next time when you hit the app url, it will present you the news from last selected source.
 
-Do you want to deploy a set of changes, or create a self-contained application? Choose a [development model](https://developer.salesforce.com/tools/vscode/en/user-guide/development-models).
 
-## Configure Your Salesforce DX Project
+  
 
-The `sfdx-project.json` file contains useful configuration information for your project. See [Salesforce DX Project Configuration](https://developer.salesforce.com/docs/atlas.en-us.sfdx_dev.meta/sfdx_dev/sfdx_dev_ws_config.htm) in the _Salesforce DX Developer Guide_ for details about this file.
 
-## Read All About It
 
-- [Salesforce Extensions Documentation](https://developer.salesforce.com/tools/vscode/)
-- [Salesforce CLI Setup Guide](https://developer.salesforce.com/docs/atlas.en-us.sfdx_setup.meta/sfdx_setup/sfdx_setup_intro.htm)
-- [Salesforce DX Developer Guide](https://developer.salesforce.com/docs/atlas.en-us.sfdx_dev.meta/sfdx_dev/sfdx_dev_intro.htm)
-- [Salesforce CLI Command Reference](https://developer.salesforce.com/docs/atlas.en-us.sfdx_cli_reference.meta/sfdx_cli_reference/cli_reference.htm)
