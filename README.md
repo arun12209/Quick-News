@@ -1,6 +1,6 @@
 # :newspaper: Quick-News
 
-This Quick-News application developed on the Salesforce platform and powered by NewsAPI.org. The Application serves you top news articles from different news sources and also you can read the top headlines country-wise.
+This Quick-News application developed on the Salesforce platform and powered by NewsAPI.org. Application serves user, top news articles from different news sources and also user can read the top headlines country-wise.
 
 # :high_brightness: Features
   * Read the top headlines news from different news sources. 
