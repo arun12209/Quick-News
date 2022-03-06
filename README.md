@@ -21,6 +21,12 @@ https://news-app-developer-edition.ap17.force.com/
  ![](https://github.com/arun12209/Quick-News/blob/master/Images/NamedCredentialsSetupScreen.png)
 * Deploy custom metadata object and field in your Salesforce org (/force-app/main/default/objects/
 * Insert custom metadata type records in Salesforce org (/force-app/main/default/customMetadata/)
+
+# Tools and Softwares used
+
+* VS Code - Open Source IDE for Salesforce
+* SFDX Deploy Tool - SFDX Deploy Tool for Windows and Mac
+
 # ✍️ Blog post
 :link: https://sfdclesson.com/2020/04/12/news-app-developed-using-lightning-component-framework/
 
